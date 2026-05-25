@@ -14,7 +14,10 @@ function Delete() {
     const [genero, setGenero] = useState('')
     const [ano, setAno] = useState('')
 
-    const [mensagem, setMensagem] = useState('')
+    const [mensagem, setMensagem] = useState({
+        tipo: '',
+        texto: ''
+    });
 
     async function buscar() {
 
@@ -26,12 +29,18 @@ function Delete() {
             setGenero(response.data.genero)
             setAno(response.data.ano)
 
-            setMensagem('')
+            setMensagem({
+                tipo: '',
+                texto: ''
+            });
 
         }
         catch(error) {
 
-            setMensagem('Filme não cadastrado')
+            setMensagem({
+                tipo: 'erro',
+                texto: 'Filme não cadastrado'
+            });
 
             setNome('')
             setGenero('')
@@ -47,7 +56,10 @@ function Delete() {
 
             await api.delete(`/filmes/${idBusca}`)
 
-            setMensagem('Filme apagado com sucesso')
+            setMensagem({
+                tipo: 'sucesso',
+                texto: 'Filme deletado com sucesso'
+            });
 
             setIdBusca('')
             setNome('')
@@ -77,19 +89,16 @@ function Delete() {
                         Apagar Filme
                     </h1>
 
+                    {mensagem.texto && (
+                        <div className={`alert ${mensagem.tipo === 'erro' ? 'alert-danger' : 'alert-success'}`}>{mensagem.texto}</div>
+                    )}
+
                     <input
                         className='form-control mb-3'
                         placeholder='ID'
                         value={idBusca}
                         onChange={(e) => setIdBusca(e.target.value)}
                     />
-
-                    <button
-                        className='btn btn-primary mb-4 w-100'
-                        onClick={buscar}
-                    >
-                        Buscar
-                    </button>
 
                     {
                         nome && (
@@ -122,6 +131,13 @@ function Delete() {
                     <div className='d-flex gap-2 mb-3'>
 
                         <button
+                            className='btn btn-primary'
+                            onClick={buscar}
+                        >
+                            Buscar
+                        </button>
+
+                        <button
                             className='btn btn-danger'
                             onClick={apagar}
                         >
@@ -136,10 +152,6 @@ function Delete() {
                         </button>
 
                     </div>
-
-                    <p>
-                        {mensagem}
-                    </p>
 
                 </div>
 

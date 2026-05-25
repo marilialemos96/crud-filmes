@@ -11,18 +11,42 @@ function Create() {
     const [nome, setNome] = useState('')
     const [genero, setGenero] = useState('')
     const [ano, setAno] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [erro, setErro] = useState('');
+
+    function validate() {
+        if(!nome.trim()) {
+            return "Campo nome inválido."
+        }
+        if(!genero.trim()) {
+            return "Campo gênero inválido."
+            
+        }
+        if(!ano.trim() || isNaN(ano)) {
+            return "Campo ano inválido."
+        }
+        return null;
+    }
 
     async function salvar(e) {
 
         e.preventDefault()
 
-        try {
+        if (isSubmitting) return; // Evitar clique duplo acidental.
+        
+        const validateError = validate();
+        if (validateError) { 
+            setErro(validateError);
+            return;
+        }
 
+        try {
+            setIsSubmitting(true);
             await api.post('/filmes', {
 
-                nome,
-                genero,
-                ano
+                nome: nome.trim(),
+                genero: genero.trim(),
+                ano: ano.trim()
 
             })
 
@@ -50,6 +74,12 @@ function Create() {
                     <h1 className='mb-4'>
                         Criar Filme
                     </h1>
+
+                    {erro && (
+                        <div className="alert alert-danger">
+                            {erro}
+                        </div>
+                    )}
 
                     <form onSubmit={salvar}>
 

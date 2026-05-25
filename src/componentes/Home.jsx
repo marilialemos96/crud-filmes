@@ -15,7 +15,7 @@ function Home() {
             try {
 
                 const response = await api.get('/filmes')
-
+                
                 setFilmes(response.data)
 
             }

@@ -13,11 +13,28 @@ function Update() {
     const [nome, setNome] = useState('')
     const [genero, setGenero] = useState('')
     const [ano, setAno] = useState('')
+    const [filmeSearch, setFlmeSearch] = useState(false);
 
-    const [mensagem, setMensagem] = useState('')
+    const [mensagem, setMensagem] = useState({
+        tipo: '',
+        texto: ''
+    });
+
+    function validate() {
+        if(!nome.trim()) {
+            return "Campo nome inválido."
+        }
+        if(!genero.trim()) {
+            return "Campo gênero inválido."
+            
+        }
+        if(!ano.trim() || isNaN(ano)) {
+            return "Campo ano inválido."
+        }
+        return null;
+    }
 
     async function buscar() {
-
         try {
 
             const response = await api.get(`/filmes/${idBusca}`)
@@ -25,13 +42,20 @@ function Update() {
             setNome(response.data.nome)
             setGenero(response.data.genero)
             setAno(response.data.ano)
+            setFlmeSearch(true)
 
-            setMensagem('')
+            setMensagem({
+                tipo: '',
+                texto: ''
+            });
 
         }
         catch(error) {
 
-            setMensagem('Filme não cadastrado')
+            setMensagem({
+                tipo: 'erro',
+                texto: 'Filme não cadastrado'
+            });
 
             setNome('')
             setGenero('')
@@ -43,17 +67,29 @@ function Update() {
 
     async function alterar() {
 
+        const validateError = validate();
+        if (validateError) { 
+            setMensagem({
+                tipo: 'erro',
+                texto: validateError
+            });
+            return;
+        }
+
         try {
 
             await api.put(`/filmes/${idBusca}`, {
 
-                nome,
-                genero,
-                ano
+                nome: nome.trim(),
+                genero: genero.trim(),
+                ano: ano.trim()
 
             })
 
-            setMensagem('Filme alterado com sucesso')
+            setMensagem({
+                tipo: 'sucesso',
+                texto: 'Filme alterado com sucesso'
+            })
 
         }
         catch(error) {
@@ -78,13 +114,14 @@ function Update() {
                         Busca e Edição de Filme
                     </h1>
 
-                    <label className='form-label'>
-                        Id:
-                    </label>
+                    {mensagem.texto && (
+                        <div className={`alert ${mensagem.tipo === 'erro' ? 'alert-danger' : 'alert-success'}`}>{mensagem.texto}</div>
+                    )}
 
                     <input
                         className='form-control mb-4'
                         value={idBusca}
+                        placeholder='ID'
                         onChange={(e) => setIdBusca(e.target.value)}
                     />
 
@@ -107,7 +144,7 @@ function Update() {
                     </div>
 
                     {
-                        nome && (
+                        filmeSearch && (
 
                             <div>
 
@@ -163,11 +200,6 @@ function Update() {
 
                         )
                     }
-
-                    <p>
-                        {mensagem}
-                    </p>
-
                 </div>
 
             </div>
